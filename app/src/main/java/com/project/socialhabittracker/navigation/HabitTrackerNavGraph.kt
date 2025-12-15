@@ -49,9 +49,6 @@ import com.project.socialhabittracker.ui.theme.AppTheme
 import com.project.socialhabittracker.utils.Extensions
 import kotlinx.coroutines.launch
 
-/**
- * Provides Navigation Graph for the application
- */
 @Composable
 fun HabitTrackerNavHost(
     navController: NavHostController,

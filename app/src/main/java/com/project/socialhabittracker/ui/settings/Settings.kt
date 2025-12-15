@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -39,6 +40,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -78,7 +81,10 @@ fun Settings(
     navigateToHome: () -> Unit,
     navigateToSettings: () -> Unit
 ) {
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
@@ -104,191 +110,193 @@ fun Settings(
         var showThemeDialog by remember { mutableStateOf(false) }
         val scrollState = rememberScrollState()
 
-        if (isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else {
-            Column(
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-                    .padding(padding)
-                    .padding(MaterialTheme.spacing.medium)
-            ) {
-                // preferences section
-                Text("Preferences", style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
-
-                OutlinedButton(
-                    onClick = {
-                        showThemeDialog = true
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.paint),
-                        contentDescription = "Change Theme",
-                        modifier = Modifier.size(MaterialTheme.spacing.large)
-                    )
-                    Spacer(Modifier.width(MaterialTheme.spacing.small))
-                    Text(
-                        text = "Change Theme",
-                        textAlign = TextAlign.Start,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                }
-
-                // backup section
-                Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
-                Text("Backup", style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
-
-                OutlinedButton(
-                    onClick = onSyncToCloud,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.sync),
-                        contentDescription = null,
-                        modifier = Modifier.size(MaterialTheme.spacing.large)
-                    )
-                    Spacer(Modifier.width(MaterialTheme.spacing.small))
-                    Text(
-                        text = "Sync To Cloud",
-                        textAlign = TextAlign.Start,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                }
-
-                OutlinedButton(
-                    onClick = onSyncFromCloud,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.sync),
-                        contentDescription = null,
-                        modifier = Modifier.size(MaterialTheme.spacing.large)
-                    )
-                    Spacer(Modifier.width(MaterialTheme.spacing.small))
-                    Text(
-                        text = "Sync From Cloud",
-                        textAlign = TextAlign.Start,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                }
-
-                // support section
-                Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
-                Text("Support", style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
-
-                OutlinedButton(
-                    onClick = {
-                        sendFeedback(context)
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(Icons.Default.Email, contentDescription = null)
-                    Spacer(Modifier.width(MaterialTheme.spacing.small))
-                    Text(
-                        text = "Send Feedback",
-                        textAlign = TextAlign.Start,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                }
-
-                OutlinedButton(
-                    onClick = onRateClick,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(Icons.Default.Star, contentDescription = null)
-                    Spacer(Modifier.width(MaterialTheme.spacing.small))
-                    Text(
-                        text = "Rate Us",
-                        textAlign = TextAlign.Start,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                }
-
-                OutlinedButton(
-                    onClick = { showAboutDialog = true },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(Icons.Default.Info, contentDescription = null)
-                    Spacer(Modifier.width(MaterialTheme.spacing.small))
-                    Text(
-                        text = "About",
-                        textAlign = TextAlign.Start,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
-                // Account Section
-                Text("Account", style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
-
-                OutlinedButton(
-                    onClick = onEditProfileClick,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(Icons.Default.Person, contentDescription = null)
-                    Spacer(Modifier.width(MaterialTheme.spacing.small))
-                    Text(
-                        text = "Edit Profile",
-                        textAlign = TextAlign.Start,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                }
-
-                OutlinedButton(
-                    onClick = onLogoutClick,
+        AnimatedContent(isLoading) { isLoading ->
+            if (isLoading) {
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.ExitToApp, contentDescription = null)
-                    Spacer(Modifier.width(MaterialTheme.spacing.small))
-                    Text(
-                        text = "Logout",
-                        textAlign = TextAlign.Start,
+                    CircularProgressIndicator()
+                }
+            } else {
+                Column(
+                    horizontalAlignment = Alignment.Start,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(scrollState)
+                        .padding(padding)
+                        .padding(MaterialTheme.spacing.medium)
+                ) {
+                    // preferences section
+                    Text("Preferences", style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
+
+                    OutlinedButton(
+                        onClick = {
+                            showThemeDialog = true
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.paint),
+                            contentDescription = "Change Theme",
+                            modifier = Modifier.size(MaterialTheme.spacing.large)
+                        )
+                        Spacer(Modifier.width(MaterialTheme.spacing.small))
+                        Text(
+                            text = "Change Theme",
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
+                    }
+
+                    // backup section
+                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
+                    Text("Backup", style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
+
+                    OutlinedButton(
+                        onClick = onSyncToCloud,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.sync),
+                            contentDescription = null,
+                            modifier = Modifier.size(MaterialTheme.spacing.large)
+                        )
+                        Spacer(Modifier.width(MaterialTheme.spacing.small))
+                        Text(
+                            text = "Sync To Cloud",
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
+                    }
+
+                    OutlinedButton(
+                        onClick = onSyncFromCloud,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.sync),
+                            contentDescription = null,
+                            modifier = Modifier.size(MaterialTheme.spacing.large)
+                        )
+                        Spacer(Modifier.width(MaterialTheme.spacing.small))
+                        Text(
+                            text = "Sync From Cloud",
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
+                    }
+
+                    // support section
+                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
+                    Text("Support", style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
+
+                    OutlinedButton(
+                        onClick = {
+                            sendFeedback(context)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Default.Email, contentDescription = null)
+                        Spacer(Modifier.width(MaterialTheme.spacing.small))
+                        Text(
+                            text = "Send Feedback",
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
+                    }
+
+                    OutlinedButton(
+                        onClick = onRateClick,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Default.Star, contentDescription = null)
+                        Spacer(Modifier.width(MaterialTheme.spacing.small))
+                        Text(
+                            text = "Rate Us",
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
+                    }
+
+                    OutlinedButton(
+                        onClick = { showAboutDialog = true },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Default.Info, contentDescription = null)
+                        Spacer(Modifier.width(MaterialTheme.spacing.small))
+                        Text(
+                            text = "About",
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
+                    // Account Section
+                    Text("Account", style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
+
+                    OutlinedButton(
+                        onClick = onEditProfileClick,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Default.Person, contentDescription = null)
+                        Spacer(Modifier.width(MaterialTheme.spacing.small))
+                        Text(
+                            text = "Edit Profile",
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
+                    }
+
+                    OutlinedButton(
+                        onClick = onLogoutClick,
                         modifier = Modifier
                             .fillMaxWidth()
+                    ) {
+                        Icon(Icons.Default.ExitToApp, contentDescription = null)
+                        Spacer(Modifier.width(MaterialTheme.spacing.small))
+                        Text(
+                            text = "Logout",
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.smallMedium))
+
+                    Text(
+                        text = "App version: 1.0.0",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
                     )
                 }
 
-                Spacer(modifier = Modifier.height(MaterialTheme.spacing.smallMedium))
+                AnimatedVisibility(showAboutDialog) {
+                    AboutDialog(
+                        onDismiss = { showAboutDialog = false }
+                    )
+                }
 
-                Text(
-                    text = "App version: 1.0.0",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
-                )
-            }
-
-            AnimatedVisibility(showAboutDialog) {
-                AboutDialog(
-                    onDismiss = { showAboutDialog = false }
-                )
-            }
-
-            AnimatedVisibility(showThemeDialog) {
-                ChangeThemeDialog(
-                    onDismiss = { showThemeDialog = false },
-                    onThemeSelected = onThemeChanged
-                )
+                AnimatedVisibility(showThemeDialog) {
+                    ChangeThemeDialog(
+                        onDismiss = { showThemeDialog = false },
+                        onThemeSelected = onThemeChanged
+                    )
+                }
             }
         }
     }
