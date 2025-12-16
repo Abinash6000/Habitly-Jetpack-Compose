@@ -165,7 +165,6 @@ data class DropDownItem(
 fun HabitCompletionCard(
     habitInfo: HabitInfo,
     dropDownItems: List<DropDownItem>,
-    onItemClick: (DropDownItem) -> Unit,
     upsert: (HabitCompletion) -> Unit,
     showProgressDialog: (Boolean) -> Unit,
     dataToUpsertForConfirmClick: (HabitCompletion) -> Unit,
@@ -333,23 +332,6 @@ fun HabitCompletionCard(
                             }
                         }
                     }
-                }
-            }
-            DropdownMenu(
-                expanded = isContextMenuVisible,
-                onDismissRequest = { isContextMenuVisible = false },
-                offset = pressOffset.copy(
-                    y = pressOffset.y - itemHeight
-                )
-            ) {
-                dropDownItems.forEach { item ->
-                    DropdownMenuItem(
-                        text = { Text(text = item.text) },
-                        onClick = {
-                            onItemClick(item)
-                            isContextMenuVisible = false
-                        }
-                    )
                 }
             }
         }

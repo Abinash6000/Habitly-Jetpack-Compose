@@ -69,7 +69,6 @@ object HabitReportDestination : NavigationDestination {
 fun HabitReport(
     viewModel: HabitReportViewModel = viewModel(factory = AppViewModelProvider.Factory),
     onNavigateUp: () -> Unit,
-    navigateToEditHabit: (Int) -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val habitReportUiState = viewModel.habitReportUiState
@@ -84,18 +83,6 @@ fun HabitReport(
                 navigateUp = onNavigateUp,
                 scrollBehavior = scrollBehavior
             )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { navigateToEditHabit(viewModel.habitId) },
-                shape = MaterialTheme.shapes.medium,
-                modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large))
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = stringResource(R.string.add_habit_title)
-                )
-            }
         }
     ) { innerPadding ->
         HabitReportBody(

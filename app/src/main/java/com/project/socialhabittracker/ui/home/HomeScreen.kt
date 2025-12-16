@@ -56,13 +56,10 @@ object HomeDestination : NavigationDestination {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    navigateToAddHabit: () -> Unit,
     navigateToHabitReport: (Int) -> Unit,
-    navigateToEditHabit: (Int) -> Unit,
     navigateToHome: () -> Unit,
     navigateToSettings: () -> Unit,
     homeUiState: HomeUiState,
-    deleteHaibt: (Int) -> Unit,
     upsertCompletion: (HabitCompletion) -> Unit,
 
     ) {
@@ -85,19 +82,6 @@ fun HomeScreen(
                 canNavigateBack = false,
                 scrollBehavior = scrollBehavior
             )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = navigateToAddHabit,
-                shape = MaterialTheme.shapes.large,
-                modifier = Modifier
-                    .padding(dimensionResource(id = R.dimen.padding_large))
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(R.string.add_habit_title)
-                )
-            }
         },
         bottomBar = {
             BottomBar(
@@ -139,17 +123,6 @@ fun HomeScreen(
             showProgressDialog = { showProgressDialog = it },
             dataToUpsertForConfirmClick = { completionForDate = it },
             navigateToHabitReport = { navigateToHabitReport(it) },
-            onItemClick = { dropDownItem, habitId ->
-                when (dropDownItem.text) {
-                    "Delete" -> {
-                        coroutineScope.launch {
-                            deleteHaibt(habitId)
-                        }
-                    }
-
-                    "Edit" -> navigateToEditHabit(habitId)
-                }
-            }
         )
     }
 }
@@ -162,7 +135,6 @@ fun HomeBody(
     showProgressDialog: (Boolean) -> Unit,
     dataToUpsertForConfirmClick: (HabitCompletion) -> Unit,
     navigateToHabitReport: (Int) -> Unit,
-    onItemClick: (DropDownItem, Int) -> Unit
 ) {
     AnimatedContent(
         targetState = habitInfo.isEmpty()
@@ -183,7 +155,6 @@ fun HomeBody(
                         showProgressDialog = showProgressDialog,
                         dataToUpsertForConfirmClick = dataToUpsertForConfirmClick,
                         navigateToHabitReport = { navigateToHabitReport(it) },
-                        onItemClick = onItemClick
                     )
                 }
             }

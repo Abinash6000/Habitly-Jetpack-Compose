@@ -37,7 +37,6 @@ fun HabitList(
     showProgressDialog: (Boolean) -> Unit,
     dataToUpsertForConfirmClick: (HabitCompletion) -> Unit,
     navigateToHabitReport: (Int) -> Unit,
-    onItemClick: (DropDownItem, Int) -> Unit
 ) {
     LazyColumn(
         verticalArrangement = Arrangement.Top,
@@ -48,7 +47,6 @@ fun HabitList(
             HabitCompletionCard(
                 habitInfo = habitInfo,
                 dropDownItems = listOf(DropDownItem("Edit"), DropDownItem("Delete")),
-                onItemClick = { onItemClick(it, habitInfo.habit.id) },
                 upsert = upsurt,
                 showProgressDialog = showProgressDialog,
                 dataToUpsertForConfirmClick = dataToUpsertForConfirmClick,
