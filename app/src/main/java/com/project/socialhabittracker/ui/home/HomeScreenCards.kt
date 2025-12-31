@@ -1,8 +1,10 @@
 package com.project.socialhabittracker.ui.home
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -10,9 +12,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -44,10 +49,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -66,6 +75,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
+import com.project.socialhabittracker.R
 import com.project.socialhabittracker.data.local.habit_completion_db.HabitCompletion
 import com.project.socialhabittracker.ui.theme.spacing
 import kotlinx.coroutines.delay
@@ -180,6 +195,7 @@ fun HabitCompletionCard(
     }.sortedByDescending { completion ->
         completion.date
     }
+    val todayDate = sdf.format(Date())
 
     var isContextMenuVisible by rememberSaveable {
         mutableStateOf(false)
@@ -220,7 +236,8 @@ fun HabitCompletionCard(
                         }
                     )
                 }
-        ) {
+        )
+        {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -262,7 +279,12 @@ fun HabitCompletionCard(
                         .fillMaxWidth()
                         .height(36.dp)
                 ) {
+
+                    val primaryColor = colorScheme.primary
+
                     for (i in 0..4) {
+
+                        val isToday = i == 0
 
                         val date =
                             lastFiveDates[i] // Assume this list has the formatted dates in order
@@ -279,6 +301,27 @@ fun HabitCompletionCard(
                             )
                         }
 
+                        val vignetteModifier = if (isToday) {
+                            Modifier.drawWithCache {
+                                val vignetteBrush = Brush.radialGradient(
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        primaryColor
+                                    )
+                                )
+
+                                onDrawWithContent {
+                                    drawContent()
+                                    drawRect(
+                                        brush = vignetteBrush,
+                                        blendMode = BlendMode.Multiply
+                                    )
+                                }
+                            }
+                        } else {
+                            Modifier
+                        }
+
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(MaterialTheme.spacing.medium))
@@ -293,9 +336,59 @@ fun HabitCompletionCard(
                                             )
                                         )
                                     }
-                                }
-                                )
+                                })
+                                .then(vignetteModifier)
                         ) {
+
+//                            Row {
+//                                AnimatedVisibility(
+//                                    visible = isToday,
+//                                )
+//                                {
+//                                    val composition by rememberLottieComposition(
+//
+//                                        LottieCompositionSpec
+//                                            .RawRes(R.raw.fire)
+//                                    )
+//
+//                                    val progress by animateLottieCompositionAsState(
+//                                        composition,
+//                                        iterations = LottieConstants.IterateForever,
+//                                        isPlaying = true,
+//                                        speed = 0.5f,
+//                                        restartOnPlay = false
+//                                    )
+//
+//                                    Box(
+//                                        contentAlignment = Alignment.Center,
+//                                        modifier = Modifier.wrapContentSize()
+//                                    ) {
+//                                        LottieAnimation(
+//                                            composition,
+//                                            progress,
+//                                            modifier = Modifier
+//                                                .size(25.dp)
+//                                                .drawWithCache {
+//                                                    val brush = Brush.radialGradient(
+//                                                        colors = listOf(
+//                                                            Color.Transparent,
+//                                                            Color.White.copy(alpha = 0.5f)
+//                                                        ),
+//                                                        radius = size.minDimension / 2
+//                                                    )
+//
+//                                                    onDrawWithContent {
+//                                                        drawContent()
+//                                                        drawRect(
+//                                                            brush = brush,
+//                                                        )
+//                                                    }
+//                                                }
+//                                        )
+//                                    }
+//                                }
+//                            }
+
                             if (habitInfo.habit.type.equals("yes or no", true)) {
                                 AnimatedContent(
                                     targetState = completionForDate.isCompleted
